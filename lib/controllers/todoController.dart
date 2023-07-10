@@ -11,7 +11,10 @@ class TodoController {
     Todo(id: 3, todoText: "Create a todo list", isCompleted: true)
   ];
 
-  int listItemCount() {
+  List<Todo> getTodos() {
+    return _todoList;
+  }
+  int todoItemCount() {
     return _todoList.length;
   }
   TodoController() {
@@ -22,16 +25,33 @@ class TodoController {
 
   Stream<List<Todo>> get todoStream => _todoStreamController.stream;
 
+
+  Future filteredTodo(String enteredKeyword) async
+  {
+    if(enteredKeyword.isEmpty) {
+      todoSink.add(_todoList);
+    }
+    else
+      {
+        _todoList.where((todo) =>  todo.todoText.toLowerCase().contains(enteredKeyword.toLowerCase()))
+            .toList();
+
+        todoSink.add(_todoList);
+      }
+  }
   Future addTodo(Todo newItem) async {
     _todoList.add(newItem);
     todoSink.add(_todoList);
   }
 
+   Future updateTodo( Todo todo) async {
+    todo.isCompleted = !todo.isCompleted;
+    todoSink.add(_todoList);
+   }
+
+
   Future deleteTodo(int id) async {
-
-
      _todoList.removeWhere((todo) => todo.id == id );
-
     todoSink.add(_todoList);
 
   }
