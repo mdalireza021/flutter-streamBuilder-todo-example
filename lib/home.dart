@@ -13,13 +13,31 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   final TextEditingController _textEditingController = TextEditingController();
+  //final TextEditingController _searchEditingController = TextEditingController();
+
   final TodoController _todoController = TodoController();
+   late List<Todo> filteredTodo;
+   int count =0;
+
+   @override
+  void initState() {
+
+     _todoController.todoStream.listen((event) {
+       setState(() {
+         count= event.length;
+       });
+     });
+
+    super.initState();
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
 
     return Scaffold(
-      appBar: _buildAppBar(),
+      appBar: _buildAppBar(count),
       backgroundColor: tdBGColor,
       body: Stack(
         children: [
@@ -45,7 +63,7 @@ class _HomeState extends State<Home> {
                       // Build your UI based on the data
                       return Column(
                         children: data!
-                            .map((e) => TodoItem( todoController: _todoController,
+                            .map((e) => TodoItem( todoController: _todoController,onUpdateTodo: _onUpdateTodo, onDeleteTodo: _onDeleteTodo,
                                   todo: e,
                                 ))
                             .toList(),
@@ -92,11 +110,9 @@ class _HomeState extends State<Home> {
                       style: TextStyle(fontSize: 40),
                     ),
                     onPressed: () {
-                      print(_textEditingController.text);
-
                       _todoController.addTodo(Todo(
                           id: _todoController.listItemCount()+1,
-                          todoText: "${_textEditingController.text}",
+                          todoText: _textEditingController.text,
                           isCompleted: false));
                     },
                   ),
@@ -109,17 +125,24 @@ class _HomeState extends State<Home> {
     );
   }
 
-  void _handleTodoChange(Todo todo) {
-    setState(() {
-      bool check = todo.isCompleted! || false;
-      todo.isCompleted = !check;
-    });
+  void _runFilter(String enteredKeyword) {
+
+     _todoController.filteredTodo(enteredKeyword);
   }
 
-  AppBar _buildAppBar() {
+  void _onUpdateTodo(Todo todo) {
+    _todoController.updateTodo(todo);
+  }
+
+  void _onDeleteTodo(int id)
+  {
+    _todoController.deleteTodo(id);
+  }
+
+  AppBar _buildAppBar(int count) {
     return AppBar(
       backgroundColor: tdBlack,
-      title: const Text("ToDo app"),
+      title:  Text(count.toString()),
     );
   }
 
@@ -130,7 +153,10 @@ class _HomeState extends State<Home> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
       ),
-      child: const TextField(
+      child:  TextField(
+       onChanged: (value)=> {
+         print(value),
+         _todoController.filteredTodo(value) },
         decoration: InputDecoration(
           contentPadding: EdgeInsets.all(5),
           prefixIcon: Icon(
