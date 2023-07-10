@@ -6,12 +6,17 @@ import '../model/todo.dart';
 class TodoItem extends StatelessWidget {
   final TodoController todoController;
   final Todo todo;
-  //final onTodoChanged;
-  // final onDeleteItem;
+  final onUpdateTodo;
+  final onDeleteTodo;
+
+
    const TodoItem({
     super.key,
      required this.todoController,
-    required this.todo,
+     required this.onUpdateTodo,
+     required this.onDeleteTodo,
+     required this.todo,
+
   });
 
   @override
@@ -21,7 +26,7 @@ class TodoItem extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 10),
         child: ListTile(
           onTap: () {
-            print("item clicked");
+            onUpdateTodo(todo);
           },
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
@@ -30,20 +35,24 @@ class TodoItem extends StatelessWidget {
               const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
           tileColor: Colors.white,
           leading: Icon(
-            (todo.isCompleted! || false)
+            todo.isCompleted
                 ? Icons.check_box
                 : Icons.check_box_outline_blank,
             color: tdBlue,
           ),
           title: Text(
-            "${todo.todoText}",
-            style: TextStyle(
-                fontSize: 17,
-                color: tdBlack,
-                decoration: (todo.isCompleted! || false)
-                    ? TextDecoration.lineThrough
-                    : null),
-          ),
+            todo.todoText,
+
+            style: todo.isCompleted ? const TextStyle(fontSize: 17, color: tdGrey , decoration: TextDecoration.lineThrough, fontStyle: FontStyle.italic ) : const TextStyle(fontSize: 17, color: tdBlack)),
+
+            // style: TextStyle(
+            //     fontSize: 17,
+            //     color: tdBlack,
+            //
+            //     decoration: todo.isCompleted
+            //         ? { TextDecoration.lineThrough
+            //         : null),
+
           trailing: Container(
             height: 35,
             width: 35,
@@ -54,8 +63,9 @@ class TodoItem extends StatelessWidget {
               iconSize: 18,
               icon: const Icon(Icons.delete),
               onPressed: () {
-                print("delete item click id is: ${todo.id}");
-                todoController.deleteTodo(todo.id);
+                //todoController.deleteTodo(todo.id);
+                onDeleteTodo(todo.id);
+
 
               },
             ),
